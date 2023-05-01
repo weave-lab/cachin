@@ -2,6 +2,12 @@
 
 Cachin is a package for functional caching and memoization in Go.
 
+To fetch, build and install from the GitHub source:
+
+```sh
+go get github.com/weave-lab/cachin
+```
+
 ## cache
 The cache package provides functionality for caching function results.
 You can use these functions to cache function results both in memory and in an external data store.
