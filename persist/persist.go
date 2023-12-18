@@ -162,6 +162,10 @@ func (d *Data[T]) IsExpired(ttl time.Duration) bool {
 	return d.Age() > ttl
 }
 
+func (d *Data[T]) RefreshTTL() {
+	d.lastSet = time.Now()
+}
+
 // Keyer allows the underlying type to be converted to a Key that can be used for memoization
 type Keyer interface {
 	Key() string

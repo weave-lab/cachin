@@ -13,9 +13,9 @@ import (
 
 func TestInMemory(t *testing.T) {
 	type args[T any] struct {
-		ttl          time.Duration
-		fn           func(context.Context) (T, error)
-		forceRefresh bool
+		ttl     time.Duration
+		fn      func(context.Context) (T, error)
+		options Options
 	}
 	type testCase[T any] struct {
 		name    string
@@ -34,7 +34,7 @@ func TestInMemory(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "test", nil
 				},
-				forceRefresh: false,
+				options: Options{},
 			},
 			time.Millisecond * 200,
 			time.Second,
@@ -49,7 +49,7 @@ func TestInMemory(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "test", nil
 				},
-				forceRefresh: false,
+				options: Options{},
 			},
 			time.Millisecond * 100,
 			time.Second * 150,
@@ -64,7 +64,7 @@ func TestInMemory(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "test", nil
 				},
-				forceRefresh: false,
+				options: Options{},
 			},
 			time.Millisecond * 100,
 			time.Millisecond * 150,
@@ -79,7 +79,7 @@ func TestInMemory(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "test", nil
 				},
-				forceRefresh: true,
+				options: Options{ForceRefresh: true},
 			},
 			time.Millisecond * 150,
 			time.Millisecond * 250,
@@ -94,7 +94,7 @@ func TestInMemory(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "", errors.New("failed")
 				},
-				forceRefresh: false,
+				options: Options{},
 			},
 			time.Millisecond * 100,
 			time.Millisecond * 250,
@@ -108,10 +108,10 @@ func TestInMemory(t *testing.T) {
 			fn := InMemory(tt.args.ttl, tt.args.fn)
 
 			// call it once to warm up the cache
-			_, _ = fn(context.Background(), tt.args.forceRefresh)
+			_, _ = fn(context.Background(), tt.args.options)
 			time.Sleep(time.Millisecond * 2)
 
-			got, err := fn(context.Background(), tt.args.forceRefresh)
+			got, err := fn(context.Background(), tt.args.options)
 			if got != tt.want {
 				t.Errorf("InMemory() = %v, want = %v", got, tt.wantErr)
 			}
@@ -133,10 +133,10 @@ func TestInMemory(t *testing.T) {
 
 func TestOnDisk(t *testing.T) {
 	type args[T any] struct {
-		file         string
-		ttl          time.Duration
-		fn           func(context.Context) (T, error)
-		forceRefresh bool
+		file    string
+		ttl     time.Duration
+		fn      func(context.Context) (T, error)
+		options Options
 	}
 	type testCase[T any] struct {
 		name          string
@@ -158,7 +158,7 @@ func TestOnDisk(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "test", nil
 				},
-				forceRefresh: false,
+				options: Options{},
 			},
 			time.Millisecond * 200,
 			time.Second,
@@ -176,7 +176,7 @@ func TestOnDisk(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "test", nil
 				},
-				forceRefresh: false,
+				options: Options{},
 			},
 			time.Millisecond * 100,
 			time.Second * 150,
@@ -194,7 +194,7 @@ func TestOnDisk(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "test", nil
 				},
-				forceRefresh: false,
+				options: Options{},
 			},
 			time.Millisecond * 100,
 			time.Millisecond * 150,
@@ -212,7 +212,7 @@ func TestOnDisk(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "test", nil
 				},
-				forceRefresh: true,
+				options: Options{ForceRefresh: true},
 			},
 			time.Millisecond * 150,
 			time.Millisecond * 250,
@@ -230,7 +230,7 @@ func TestOnDisk(t *testing.T) {
 					time.Sleep(time.Millisecond * 100)
 					return "", errors.New("failed")
 				},
-				forceRefresh: false,
+				options: Options{},
 			},
 			time.Millisecond * 100,
 			time.Millisecond * 250,
@@ -246,10 +246,10 @@ func TestOnDisk(t *testing.T) {
 			fn := OnDisk(tt.args.file, tt.args.ttl, tt.args.fn)
 
 			// call it once to warm up the cache
-			_, _, _ = fn(context.Background(), tt.args.forceRefresh)
+			_, _, _ = fn(context.Background(), tt.args.options)
 			time.Sleep(time.Millisecond * 2)
 
-			got, cacheErr, err := fn(context.Background(), tt.args.forceRefresh)
+			got, cacheErr, err := fn(context.Background(), tt.args.options)
 			if got != tt.want {
 				t.Errorf("OnDisk() = %v, want = %v", got, tt.wantErr)
 			}
