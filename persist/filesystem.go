@@ -28,10 +28,7 @@ func NewFsStore(dir string, useSafeKey bool) *FsStore {
 // Get searches for a file that matches the provided key in the stores root directory. If the file is missing
 // no error will be returned
 func (c *FsStore) Get(_ context.Context, key string) ([]byte, time.Time, error) {
-	if c.useSafeKey {
-		key = SafeKey(key)
-	}
-	file := filepath.Join(c.dir, key)
+	file := c.getFilePath(key)
 	stat, err := os.Stat(file)
 	switch {
 	case os.IsNotExist(err):
@@ -58,14 +55,21 @@ func (c *FsStore) Set(_ context.Context, key string, val []byte) error {
 		}
 	}
 
+	file := c.getFilePath(key)
+	return afero.WriteFile(c.afs, file, val, 0666)
+}
+
+// Delete deletes the file that matches the provided key in the store root directory. If the file can not be deleted
+// an error will be returned
+func (c *FsStore) Delete(_ context.Context, key string) error {
+	file := c.getFilePath(key)
+	return os.RemoveAll(file)
+}
+
+func (c *FsStore) getFilePath(key string) string {
 	if c.useSafeKey {
 		key = SafeKey(key)
 	}
-	file := filepath.Join(c.dir, key)
-	err := afero.WriteFile(c.afs, file, val, 0666)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return filepath.Join(c.dir, key)
 }

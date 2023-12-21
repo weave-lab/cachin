@@ -33,6 +33,7 @@ var (
 type Store interface {
 	Get(context.Context, string) ([]byte, time.Time, error)
 	Set(context.Context, string, []byte) error
+	Delete(context.Context, string) error
 }
 
 // Serializable is an optional interface that can be used to customize the way a Data struct serializes its data
@@ -125,6 +126,15 @@ func (d *Data[T]) Set(ctx context.Context, a T) error {
 // IsUnset returns true if the value has never been set
 func (d *Data[T]) IsUnset() bool {
 	return d.lastSet.IsZero()
+}
+
+// Delete deletes any resources associated with this cached data
+func (d *Data[T]) Delete(ctx context.Context) error {
+	if d.IsUnset() {
+		return nil
+	}
+
+	return d.store.Delete(ctx, d.key)
 }
 
 // Bytes converts the value int a slice of bytes, so it can be stored. If the underlying type implements the

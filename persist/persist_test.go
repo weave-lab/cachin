@@ -31,6 +31,11 @@ func (t *testStore) Set(_ context.Context, key string, data []byte) error {
 	return nil
 }
 
+func (t *testStore) Delete(_ context.Context, key string) error {
+	delete(t.data, key)
+	return nil
+}
+
 func TestData_Load(t *testing.T) {
 	type args struct {
 		ctx context.Context

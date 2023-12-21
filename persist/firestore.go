@@ -50,3 +50,12 @@ func (s *FireStore) Set(ctx context.Context, key string, val []byte) error {
 
 	return nil
 }
+
+// Delete deletes the firestore document that matches the provided key. In order to ensure the key does not contain
+// illegal characters, the key will be converted to a 'safe' key.
+func (s *FireStore) Delete(ctx context.Context, key string) error {
+	doc := s.client.Doc(SafeKey(key))
+
+	_, err := doc.Delete(ctx)
+	return err
+}

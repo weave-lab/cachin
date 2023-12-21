@@ -53,3 +53,9 @@ func (s *RedisStore) Set(_ context.Context, key string, val []byte) error {
 	cmd := s.client.Set(SafeKey(key), d, Forever)
 	return cmd.Err()
 }
+
+// Delete deletes the key from the redis cache
+func (s *RedisStore) Delete(_ context.Context, key string) error {
+	cmd := s.client.Set(SafeKey(key), nil, Forever)
+	return cmd.Err()
+}
