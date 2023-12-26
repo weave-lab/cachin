@@ -127,6 +127,10 @@ func (d *Data[T]) IsUnset() bool {
 	return d.lastSet.IsZero()
 }
 
+func (d *Data[T]) ResetTTL() {
+	d.lastSet = time.Now()
+}
+
 // Bytes converts the value int a slice of bytes, so it can be stored. If the underlying type implements the
 // Serializable interface that will be used. Otherwise, the type is JSON marshalled
 func (d *Data[T]) Bytes() ([]byte, error) {
