@@ -46,4 +46,4 @@ jobs:
 
       # Run go build
       - name: Run Go Build
-        run: go build ./cache && go build ./memoize && go build ./persist
+        run: go build ./cache && go build ./persist
