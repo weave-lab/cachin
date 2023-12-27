@@ -5,13 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-
-	"github.com/spf13/afero"
 )
 
 // FsStore is a Store that uses the filesystem to store cache data
 type FsStore struct {
-	afs        afero.Fs
 	dir        string
 	useSafeKey bool
 }
@@ -19,7 +16,6 @@ type FsStore struct {
 // NewFsStore creates a new FsStore, dir is the rood directory where all cached files will be stored
 func NewFsStore(dir string, useSafeKey bool) *FsStore {
 	return &FsStore{
-		afs:        afero.NewOsFs(),
 		dir:        dir,
 		useSafeKey: useSafeKey,
 	}
@@ -40,7 +36,7 @@ func (c *FsStore) Get(_ context.Context, key string) ([]byte, time.Time, error) 
 		return nil, time.Time{}, err
 	}
 
-	raw, err := afero.ReadFile(c.afs, file)
+	raw, err := os.ReadFile(file)
 	if err != nil {
 		return nil, time.Time{}, err
 	}
@@ -51,8 +47,8 @@ func (c *FsStore) Get(_ context.Context, key string) ([]byte, time.Time, error) 
 // Set writes or updates a file that matches the provided key in the stores root directory. The file will contain
 // the raw bytes passed in by val
 func (c *FsStore) Set(_ context.Context, key string, val []byte) error {
-	if _, err := c.afs.Stat(c.dir); os.IsNotExist(err) {
-		err := c.afs.MkdirAll(c.dir, 0750)
+	if _, err := os.Stat(c.dir); os.IsNotExist(err) {
+		err := os.MkdirAll(c.dir, 0750)
 		if err != nil {
 			return err
 		}
@@ -62,7 +58,7 @@ func (c *FsStore) Set(_ context.Context, key string, val []byte) error {
 		key = SafeKey(key)
 	}
 	file := filepath.Join(c.dir, key)
-	err := afero.WriteFile(c.afs, file, val, 0666)
+	err := os.WriteFile(file, val, 0666)
 	if err != nil {
 		return err
 	}
